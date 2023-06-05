@@ -1,0 +1,16 @@
+stages:
+- deploy
+
+deploy-app:
+  stage: deploy
+  only:
+  - develop
+  script:
+  - source ~/.bashrc
+  - whoami
+  - pwd
+  - rm -rf /var/www/front-end/src
+  - rsync -ar ./* /var/www/front-end
+  - cd /var/www/front-end
+  - npm install
+  - npm run build:prod

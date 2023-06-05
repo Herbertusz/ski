@@ -1,0 +1,11 @@
+/.settings/
+/.gradle/
+/build/
+/dist/
+/node_modules/
+/.classpath
+/.project
+/config-local/
+/.vscode/
+/.idea/
+.DS_Store
