@@ -1,6 +1,6 @@
 # Ski
 
-desc...
+SkiFree ramake in javascript
 
 Első indítás: `npm start`
 Módosítás utáni fordítás: `npm run restart`
