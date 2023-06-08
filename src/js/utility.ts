@@ -1,5 +1,3 @@
-import { LocationData } from './interfaces';
-
 /**
  * Promisify-olt setTimeout
  * @param {number} timeout - késleltetés
@@ -46,7 +44,7 @@ export const promiseSequence = function (promiseFactories: ((value: any) => any)
  * @return {Promise}
  */
 export const tryRequest = function ({
-  times, url, options = {}
+  times, url, options = { }
 }: {
   times: number, url: string, options?: RequestInit
 }): Promise<any> {
@@ -76,27 +74,32 @@ export const tryRequest = function ({
 };
 
 /**
- * Geolocation lekérés
- * @return {Promise}
+ * Animáció futtatása
+ * @param {number} speed - animáció sebessége (px/sec)
+ * @param {function} operation - animáció minden lépésében lefutó függvény, ha false a visszatérési értéke, az animáció leáll
+ * @example
+ *  animate(200, (current) => {
+ *    ctx.clearRect(0, 0, canvasTrack.width, canvasTrack.height);
+ *    ctx.fillRect(current, 20, 100, 100);
+ *    return current < 500;
+ *  });
  */
-export const getLocation = function (): Promise<LocationData> {
-  return new Promise((
-    resolve: (value: LocationData) => void, reject: (error: LocationData) => void
-  ) => {
-    navigator.geolocation.getCurrentPosition(
-      (position: GeolocationPosition) => {
-        resolve({
-          latitude: position.coords.latitude,
-          longitude: position.coords.longitude
-        });
-      },
-      (error: GeolocationPositionError) => {
-        reject({
-          error,
-          latitude: 0,
-          longitude: 0
-        });
-      }
-    );
-  });
+export const animate = function(speed: number, operation: (count: number) => boolean) {
+  let start: number | null = null;
+
+  const step = (timeStamp: number) => {
+    if (!start) {
+      start = timeStamp;
+    }
+    const elapsed = timeStamp - start;
+    const count = speed / 1000 * elapsed;
+
+    const continueAnimation = operation(count);
+
+    if (continueAnimation) {
+      window.requestAnimationFrame(step);
+    }
+  };
+
+  window.requestAnimationFrame(step);
 };

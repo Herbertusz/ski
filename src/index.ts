@@ -1,50 +1,40 @@
-/**
- * Animáció futtatása
- * @param {number} speed - animáció sebessége (px/sec)
- * @param {function} operation - animáció minden lépésében lefutó függvény, ha false a visszatérési értéke, az animáció leáll
- */
-const animate = function(speed: number, operation: (count: number) => boolean) {
-  let start: number | null = null;
-
-  const step = (timeStamp: number) => {
-    if (!start) {
-      start = timeStamp;
-    }
-    const elapsed = timeStamp - start;
-
-    const count = speed / 1000 * elapsed;
-    const continueAnimation = operation(count);
-
-    if (continueAnimation) {
-      window.requestAnimationFrame(step);
-    }
-  };
-
-  window.requestAnimationFrame(step);
-};
+import { animate } from './js/utility';
+import { Control } from './js/control';
+import { CanvasContexts, CanvasLayers, Graphics, Layers } from './js/graphics';
 
 window.onload = function() {
 
-  const canvasTrack = document.getElementById('track') as HTMLCanvasElement;
-  const canvasSkier = document.getElementById('skier') as HTMLCanvasElement;
-  const ctxTrack = canvasTrack.getContext('2d') as CanvasRenderingContext2D;
-  const _ctxSkier = canvasSkier.getContext('2d') as CanvasRenderingContext2D;
+  const canvas = {
+    under: document.getElementById(Layers.Under),
+    main: document.getElementById(Layers.Main),
+    over: document.getElementById(Layers.Over)
+  } as CanvasLayers;
+  const ctx = {
+    under: canvas[Layers.Under].getContext('2d'),
+    main: canvas[Layers.Main].getContext('2d'),
+    over: canvas[Layers.Over].getContext('2d')
+  } as CanvasContexts;
 
   window.addEventListener('resize', resizeCanvas, false);
 
   function resizeCanvas() {
-    canvasTrack.width = window.innerWidth;
-    canvasTrack.height = window.innerHeight;
-    canvasSkier.width = window.innerWidth;
-    canvasSkier.height = window.innerHeight;
+    Object.values(Layers).forEach(
+      (layerName: Layers) => {
+        canvas[layerName].width = window.innerWidth;
+        canvas[layerName].height = window.innerHeight;
+      }
+    );
   }
 
   resizeCanvas();
 
-  animate(200, (steps) => {
-    ctxTrack.clearRect(0, 0, canvasTrack.width, canvasTrack.height);
-    ctxTrack.fillRect(steps, 20, 100, 100);
-    return steps < 500;
+  animate(200, (current) => {
+    ctx[Layers.Under].clearRect(0, 0, canvas[Layers.Under].width, canvas[Layers.Under].height);
+    ctx[Layers.Under].fillRect(current, 20, 100, 100);
+    return current < 500;
   });
+
+  Graphics.init(canvas, ctx);
+  Control.init(canvas[Layers.Main]);
 
 };
