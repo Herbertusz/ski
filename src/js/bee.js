@@ -66,7 +66,7 @@ var Util = {
    * @return <float>
    */
   addition : function(a, b){
-    if (typeof(a) == 'object'){
+    if (typeof(a) === 'object'){
       return Math.sqrt(a.x * a.x + a.y * a.y);
     }
     else{
@@ -137,7 +137,7 @@ var Geometry = {
    * @return <object|null> (c1,c2,dir)
    */
   getRectTouching : function(rect1, rect2, pixel){
-    if (typeof(pixel) == 'undefined') pixel = 0;
+    if (typeof(pixel) === 'undefined') pixel = 0;
     var touching = null;
     if (Math.abs(rect1.x1 - rect2.x2) <= pixel){
       // rect1 bal oldala (külső)
@@ -243,7 +243,7 @@ var Mediator = {
    * @return <mixed> a függvény visszatérési értéke
    */
   run : function(event, args){
-    if (typeof(this.components[event]) != 'undefined'){
+    if (typeof(this.components[event]) !== 'undefined'){
       return this.components[event].apply(this.objects, args);
     }
     else{
@@ -346,7 +346,7 @@ GraphicalEngine.prototype = {
    * @param angle <float> új szögelfordulás
    */
   moveImage : function(pos, angle){
-    if (pos == Current.pos && angle == Current.angle){
+    if (pos === Current.pos && angle === Current.angle){
       return false;
     }
     else{
@@ -425,7 +425,7 @@ Controller.prototype = {
    */
   inKeyArray : function(key){
     for (var i = 0, length = this.keydown.length; i < length; i++){
-      if (key.which == this.keydown[i].which){
+      if (key.which === this.keydown[i].which){
         return true;
       }
     }
@@ -443,7 +443,7 @@ Controller.prototype = {
     };
     var controls = this.controls;
     for (var button in Util.keyCode){
-      if (keyCode == Util.keyCode[button] && controls[button]){
+      if (keyCode === Util.keyCode[button] && controls[button]){
         Util.mergeObj(key, controls[button]);
         return key;
       }
@@ -505,8 +505,8 @@ PhysicalModel.prototype = {
     if (Util.inArray('left', this.sliding) && accX < 0) accX = 0;
     if (Util.inArray('right', this.sliding) && accX > 0) accX = 0;
     acc.acceleration = Util.addition(accX, accY);
-    if (accY == 0){
-      if (accX == 0){
+    if (accY === 0){
+      if (accX === 0){
         acc.direction = 0;
       }
       else{
@@ -557,16 +557,16 @@ PhysicalModel.prototype = {
     var newPos = this.accelerateImage(acceleration, angle);
     var collision = this.getCollision(newPos);
     this.sliding = this.getSliding(newPos);
-    if (collision.length == 1){
+    if (collision.length === 1){
       collision = collision[0];
-      if (collision == 'top' || collision == 'bottom'){
+      if (collision === 'top' || collision === 'bottom'){
         Current.speed.y = -(Current.speed.y * this.conservation);
       }
-      else if (collision == 'left' || collision == 'right'){
+      else if (collision === 'left' || collision === 'right'){
         Current.speed.x = -(Current.speed.x * this.conservation);
       }
     }
-    if (collision.length == 2){
+    if (collision.length === 2){
       Current.speed.x = -(Current.speed.x * this.conservation);
       Current.speed.y = -(Current.speed.y * this.conservation);
     }
@@ -651,17 +651,17 @@ Interaction.prototype = {
    * @return <bool> ha true, túllépte a falat
    */
   isOutsideOf : function(wall, pos, pixel){
-    if (typeof(pixel) == 'undefined') pixel = 0;
-    if (pos.y - this.beecollision.top < this.objects.border.top - pixel && (wall == 'top' || wall == 'any')){
+    if (typeof(pixel) === 'undefined') pixel = 0;
+    if (pos.y - this.beecollision.top < this.objects.border.top - pixel && (wall === 'top' || wall === 'any')){
       return true;
     }
-    if (pos.y + this.beecollision.bottom >= this.objects.border.bottom + pixel && (wall == 'bottom' || wall == 'any')){
+    if (pos.y + this.beecollision.bottom >= this.objects.border.bottom + pixel && (wall === 'bottom' || wall === 'any')){
       return true;
     }
-    if (pos.x - this.beecollision.left < this.objects.border.left - pixel && (wall == 'left' || wall == 'any')){
+    if (pos.x - this.beecollision.left < this.objects.border.left - pixel && (wall === 'left' || wall === 'any')){
       return true;
     }
-    if (pos.x + this.beecollision.right >= this.objects.border.right + pixel && (wall == 'right' || wall == 'any')){
+    if (pos.x + this.beecollision.right >= this.objects.border.right + pixel && (wall === 'right' || wall === 'any')){
       return true;
     }
     // levelek
@@ -678,19 +678,19 @@ Interaction.prototype = {
         if (Math.abs(is.x2 - is.x1) > pixel || Math.abs(is.y2 - is.y1) > pixel){
           if (Math.abs(is.x2 - is.x1) > Math.abs(is.y2 - is.y1)){
             // top || bottom
-            if (Math.abs(is.y1 - pos.y) > Math.abs(is.y2 - pos.y) && (wall == 'top' || wall == 'any')){
+            if (Math.abs(is.y1 - pos.y) > Math.abs(is.y2 - pos.y) && (wall === 'top' || wall === 'any')){
               return true;
             }
-            if (Math.abs(is.y1 - pos.y) < Math.abs(is.y2 - pos.y) && (wall == 'bottom' || wall == 'any')){
+            if (Math.abs(is.y1 - pos.y) < Math.abs(is.y2 - pos.y) && (wall === 'bottom' || wall === 'any')){
               return true;
             }
           }
           else{
             // left || right
-            if (Math.abs(is.x1 - pos.x) > Math.abs(is.x2 - pos.x) && (wall == 'left' || wall == 'any')){
+            if (Math.abs(is.x1 - pos.x) > Math.abs(is.x2 - pos.x) && (wall === 'left' || wall === 'any')){
               return true;
             }
-            if (Math.abs(is.x1 - pos.x) < Math.abs(is.x2 - pos.x) && (wall == 'right' || wall == 'any')){
+            if (Math.abs(is.x1 - pos.x) < Math.abs(is.x2 - pos.x) && (wall === 'right' || wall === 'any')){
               return true;
             }
           }
@@ -708,17 +708,17 @@ Interaction.prototype = {
    * @return <bool> ha true, érintkezik a fallal
    */
   isTouchedOf : function(wall, pos, pixel){
-    if (typeof(pixel) == 'undefined') pixel = 0;
-    if (Math.abs(pos.y - this.beecollision.top - this.objects.border.top) <= pixel && (wall == 'top' || wall == 'any')){
+    if (typeof(pixel) === 'undefined') pixel = 0;
+    if (Math.abs(pos.y - this.beecollision.top - this.objects.border.top) <= pixel && (wall === 'top' || wall === 'any')){
       return true;
     }
-    if (Math.abs(pos.y + this.beecollision.bottom - this.objects.border.bottom) <= pixel && (wall == 'bottom' || wall == 'any')){
+    if (Math.abs(pos.y + this.beecollision.bottom - this.objects.border.bottom) <= pixel && (wall === 'bottom' || wall === 'any')){
       return true;
     }
-    if (Math.abs(pos.x - this.beecollision.left - this.objects.border.left) <= pixel && (wall == 'left' || wall == 'any')){
+    if (Math.abs(pos.x - this.beecollision.left - this.objects.border.left) <= pixel && (wall === 'left' || wall === 'any')){
       return true;
     }
-    if (Math.abs(pos.x + this.beecollision.right - this.objects.border.right) <= pixel && (wall == 'right' || wall == 'any')){
+    if (Math.abs(pos.x + this.beecollision.right - this.objects.border.right) <= pixel && (wall === 'right' || wall === 'any')){
       return true;
     }
     // levelek
@@ -731,7 +731,7 @@ Interaction.prototype = {
     for (var i = 0; i < this.objects.leafs.length; i++){
       var leaf = this.objects.leafs[i];
       var touch = Geometry.getRectTouching(bee, leaf, pixel);
-      if (touch && (wall == 'any' || wall == touch.dir)){
+      if (touch && (wall === 'any' || wall === touch.dir)){
         return true;
       }
     }
@@ -846,7 +846,7 @@ BeeGame.prototype = {
 
     this.graphics.canvas.addEventListener('keydown', function(event){
       event.preventDefault();
-      if (event.keyCode == Util.keyCode.ESCAPE){
+      if (event.keyCode === Util.keyCode.ESCAPE){
         window.clearTimeout(Util.timer.acc);
         window.clearTimeout(Util.timer.rot);
         window.clearTimeout(Util.timer.flap);
@@ -869,7 +869,7 @@ BeeGame.prototype = {
       window.clearTimeout(Util.timer.acc);
       window.clearTimeout(Util.timer.rot);
       for (var i = 0; i < game.control.keydown.length; i++){
-        if (event.keyCode == game.control.keydown[i].which){
+        if (event.keyCode === game.control.keydown[i].which){
           game.control.keydown.splice(i, 1);
           break;
         }
