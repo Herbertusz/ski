@@ -5,6 +5,11 @@ export enum Direction {
   Bottom = 'bottom'
 }
 
+export interface Vector {
+  length: number;
+  angle: number;
+}
+
 export interface Coord {
   x: number;
   y: number;
@@ -41,21 +46,58 @@ interface RectEdges {
 export const Geometry = {
 
   /**
-   * Derékszögű vektorok összege (négyzetösszegek gyöke)
-   * @param {number | object} a - ha object, akkor az x és y property-k lesznek összeadva
-   * @param {number} [b]
-   * @return {number}
+   * Vektor meghatározása {x,y} => {length,angle}
+   * @param {object} components - vektor x és y irányú komponense
+   * @return {object} vektor nagysága és iránya (angle: lefelé mutató tengellyel bezárt szög)
    */
-  addition: function(a: number | Coord, b?: number): number | null {
-    if (typeof a === 'object') {
-      return Math.sqrt(a.x * a.x + a.y * a.y);
-    }
-    else if (typeof b === 'number') {
-      return Math.sqrt(a * a + b * b);
-    }
-    else {
-      return null;
-    }
+  getVector: function(components: Coord): Vector {
+    return {
+      length: Math.sqrt(components.x * components.x + components.y * components.y),
+      angle: Math.atan(components.x / components.y) + Math.PI / 2
+    };
+  },
+
+  /**
+   * Koordináta meghatározása {length,angle} => {x,y}
+   * @param vector - vektor nagysága és iránya (angle: lefelé mutató tengellyel bezárt szög)
+   * @return {object} vektor x és y irányú komponense
+   */
+  getCoord: function(vector: Vector): Coord {
+    const angle = vector.angle - Math.PI / 2;
+    return {
+      x: vector.length * Math.sin(angle),
+      y: vector.length * Math.cos(angle)
+    };
+  },
+
+  // /**
+  //  * Vektorok összege
+  //  * @param {object} a - vektor
+  //  * @param {object} b - vektor
+  //  * @return {object} összeg
+  //  */
+  // addVectors: function(a: Vector, b: Vector): Vector {
+  //   const ac = this.getCoord(a);
+  //   const bc = this.getCoord(b);
+  //   const addition = this.addCoords(ac, bc);
+  //   return this.getVector(addition);
+  // },
+
+  /**
+   * Koordináták vektoriális összege
+   * @param {array} coords - koordináták
+   * @return {object} összeg
+   */
+  addCoords: function(...coords: Coord[]): Coord {
+    const x = coords.reduce(
+      (acc, curr) => acc + curr.x,
+      0
+    );
+    const y = coords.reduce(
+      (acc, curr) => acc + curr.y,
+      0
+    );
+    return { x, y };
   },
 
   /**
@@ -206,7 +248,7 @@ export const Geometry = {
    * @return ha true, túllépte az értékhatárt
    */
   isOutsideOfObject: function(rect1: Rect, rect2: Rect, pixel: number = 0): boolean {
-    const intersect = Geometry.getRectIntersection(rect1, rect2);
+    const intersect = this.getRectIntersection(rect1, rect2);
     return intersect.w > pixel || intersect.h > pixel;
   }
 

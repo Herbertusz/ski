@@ -1,4 +1,4 @@
-import { Rect } from './geometry';
+import { Coord, Rect } from './geometry';
 
 export enum Layers {
   Under = 'under',
@@ -6,30 +6,43 @@ export enum Layers {
   Over = 'over'
 }
 
+export enum ImageId {
+  character = 'character',
+  characterJump = 'character',
+  tree = 'tree',
+  column = 'column',
+  stone = 'stone'
+}
+
 export interface CanvasLayers {
-  under: HTMLCanvasElement;
-  main: HTMLCanvasElement;
-  over: HTMLCanvasElement;
+  [Layers.Under]: HTMLCanvasElement;
+  [Layers.Main]: HTMLCanvasElement;
+  [Layers.Over]: HTMLCanvasElement;
 }
 
 export interface CanvasContexts {
-  under: CanvasRenderingContext2D;
-  main: CanvasRenderingContext2D;
-  over: CanvasRenderingContext2D;
+  [Layers.Under]: CanvasRenderingContext2D;
+  [Layers.Main]: CanvasRenderingContext2D;
+  [Layers.Over]: CanvasRenderingContext2D;
 }
 
 /**
- * Grafikai műveletek kezelése
+ * Grafikai motor
  */
 export const Graphics = {
 
   canvas: { } as CanvasLayers,  // canvas elem
   ctx: { } as CanvasContexts,   // rajzoló kontextus
-  currentimage: null,          // aktuális kép
+  currentImage: null,           // aktuális kép
   images: {
-    [Layers.Under]: [],
-    [Layers.Main]: [],
-    [Layers.Over]: []
+    // under
+    character: { layer: Layers.Under, file: document.createElement('img') },
+    // main
+    tree: { layer: Layers.Main, file: document.createElement('img') },
+    column: { layer: Layers.Main, file: document.createElement('img') },
+    stone: { layer: Layers.Main, file: document.createElement('img') },
+    // over
+    characterJump: { layer: Layers.Over, file: document.createElement('img') }
   },
 
   init: function(canvas: CanvasLayers, ctx: CanvasContexts) {
@@ -41,7 +54,7 @@ export const Graphics = {
     //   this.images[i] = new Image();
     //   this.images[i].src = imagepaths[i];
     // }
-    // this.currentimage = this.images[0];
+    // this.currentImage = this.images[0];
     // this.imagesize = imagesize;
     // this.startpos = startpos;
   },
@@ -49,7 +62,7 @@ export const Graphics = {
   /**
    * Kép kirajzolása
    */
-  createImage: function(ctx: CanvasRenderingContext2D, image: CanvasImageSource, dimensions: Rect) {
+  drawImage: function(ctx: CanvasRenderingContext2D, image: CanvasImageSource, dimensions: Rect) {
     ctx.translate(dimensions.x, dimensions.y);
     ctx.save();
     ctx.drawImage(image, -Math.round(dimensions.w / 2), -Math.round(dimensions.h / 2));
@@ -70,27 +83,25 @@ export const Graphics = {
    * @param pos <object> új pozíció
    * @param angle <float> új szögelfordulás
    */
-  moveImage: function() {
-    // if (pos === Current.pos && angle === Current.angle) {
-    //   return false;
-    // }
-    // else {
-    //   this.deleteImage({ x: Current.pos.x, y: Current.pos.y });
-    //   this.ctx.save();
-    //   this.ctx.translate(Math.round(pos.x), Math.round(pos.y));
-    //   this.ctx.rotate(angle);
-    //   this.ctx.drawImage(this.currentimage, -Math.round(this.imagesize.w / 2), -Math.round(this.imagesize.h / 2));
-    //   this.ctx.restore();
-    //   Current.pos = pos;
-    //   Current.angle = angle;
-    //   return true;
-    // }
+  moveImage: function(imageID: ImageId, position: Coord): boolean {
+    const layer = this.images[imageID].layer;
+    this.deleteImage(this.ctx[layer], { x: 0, y: 0, w: 500, h: 300 });
+    this.drawImage(this.ctx[layer], this.images[imageID].file, { ...position, w: 50, h: 50 });
+    // this.deleteImage({ x: Current.pos.x, y: Current.pos.y });
+    // this.ctx.save();
+    // this.ctx.translate(Math.round(pos.x), Math.round(pos.y));
+    // this.ctx.rotate(angle);
+    // this.ctx.drawImage(this.currentImage, -Math.round(this.imagesize.w / 2), -Math.round(this.imagesize.h / 2));
+    // this.ctx.restore();
+    // Current.pos = pos;
+    // Current.angle = angle;
+    return true;
   },
 
   /**
    * Objektumok kirajzolása
    */
-  drawObjects: function(ctx: CanvasRenderingContext2D) {
+  drawObjects: function(ctx: CanvasRenderingContext2D): void {
     // const objects = Mediator.run('getTrackObjects', []);
     ctx.strokeStyle = 'red';
     ctx.strokeRect(300, 200, 50, 20);

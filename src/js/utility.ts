@@ -1,4 +1,89 @@
 /**
+ * Switch szerkezet funkcionális megfelelője (elsősorban értékadáshoz)
+ * @param {*} variable - változó
+ * @param {object} relations - változó különböző értékeihez rendelt visszatérési értékek
+ * @param {*} [defaultValue=null] - alapértelmezett érték (default)
+ * @return {*}
+ * @example
+ *  control = switching(key, {
+ *    'W': 'accelerate',
+ *    'A': 'turnLeft',
+ *    'S': 'brake',
+ *    'D': 'turnRight'
+ *  }, null);
+ * Ezzel egyenértékű:
+ *  switch(key) {
+ *    case 'W': control = 'accelerate'; break;
+ *    case 'A': control = 'turnLeft'; break;
+ *    case 'S': control = 'brake'; break;
+ *    case 'D': control = 'turnRight'; break;
+ *    default: control = null;
+ *  }
+ */
+export const switching = function<T>(
+  variable: number | string, relations: Record<string, T>, defaultValue: T
+): T {
+  let index: string;
+  for (index in relations) {
+    if (String(variable) === index) {
+      return relations[index];
+    }
+  }
+  return defaultValue;
+};
+
+/**
+ * Elágazás funkcionális megfelelője (elsősorban értékadáshoz)
+ * @param {array} construct - feltételes szerkezetet leíró tömb
+ * @example
+ *  variable = condition([
+ *    [alert_date < alert_date, 1],
+ *    [alert_date > alert_date, -1],
+ *    [uniqueId > uniqueId, 1],
+ *    [uniqueId < uniqueId, -1],
+ *    [true, 0]
+ *  ]);
+ * Ezzel egyenértékű:
+ *  if (alert_date < alert_date) {
+ *    variable = 1;
+ *  }
+ *  else if (alert_date > alert_date) {
+ *    variable = -1;
+ *  }
+ *  else if (uniqueId > uniqueId) {
+ *    variable = 1;
+ *  }
+ *  else {
+ *    variable = -1;
+ *  }
+ * @example
+ *  condition([
+ *    [input.type === 'checkbox', () => {
+ *      statement A;
+ *    }],
+ *    [input.type === 'select', () => {
+ *      statement B;
+ *    }],
+ *    [true, () => {
+ *      statement C;
+ *    }]
+ *  ])();
+ * Ezzel egyenértékű:
+ *  if (input.type === 'checkbox') {
+ *    statement A;
+ *  }
+ *  else if (input.type === 'select') {
+ *    statement B;
+ *  }
+ *  else {
+ *    statement C;
+ *  }
+ */
+export const condition = function<T>(construct: [boolean, T][]): T {
+  return (construct.find(branch => branch[0]) as [boolean, T])[1];
+};
+
+/**
  * Promisify-olt setTimeout
  * @param {number} timeout - késleltetés
  * @param {*} resolvedValue - továbbított érték

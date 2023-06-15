@@ -1,14 +1,19 @@
+import { condition } from './utility';
+import { Operation } from './physics';
+
+enum MoveType {
+  Slide,
+  Move,
+  Stand
+}
+
 export enum MoveDirection {
+  Left,
   LeftTop,
   LeftBottom,
   Down,
   RightBottom,
   RightTop,
-  None
-}
-
-export enum StepDirection {
-  Left,
   Right,
   Up,
   None
@@ -20,8 +25,10 @@ export enum StepDirection {
  */
 export const Control = {
 
-  moveDirection: MoveDirection.None as MoveDirection,
-  stepDirection: StepDirection.None as StepDirection,
+  movement: {
+    type: MoveType.Stand as MoveType,
+    direction: MoveDirection.None as MoveDirection
+  },
 
   init: function(canvas: HTMLCanvasElement) {
     document.addEventListener('mousemove', (event) => {
@@ -42,26 +49,57 @@ export const Control = {
         const currentArea = areas.findIndex(
           (edge, i) => edge <= angle && areas[i + 1] > angle
         );
-        this.moveDirection = currentArea as MoveDirection;
+        this.movement = {
+          type: MoveType.Slide,
+          direction: currentArea
+        };
       }
     });
     document.addEventListener('keydown', (event) => {
       if (event.key === 'ArrowLeft') {
-        this.stepDirection = StepDirection.Left;
+        this.movement = {
+          type: MoveType.Move,
+          direction: MoveDirection.Left
+        };
       }
       if (event.key === 'ArrowRight') {
-        this.stepDirection = StepDirection.Right;
+        this.movement = {
+          type: MoveType.Move,
+          direction: MoveDirection.Right
+        };
       }
       if (event.key === 'ArrowUp') {
-        this.stepDirection = StepDirection.Up;
+        this.movement = {
+          type: MoveType.Move,
+          direction: MoveDirection.Up
+        };
       }
     });
     document.addEventListener('keyup', (_event) => {
-      this.stepDirection = StepDirection.None;
+      this.movement = {
+        type: MoveType.Stand,
+        direction: MoveDirection.None
+      };
     });
     document.addEventListener('click', (_event) => {
-      // JUMP
+      // TODO: jump
     });
+  },
+
+  getOperation: function(type: MoveType, direction: MoveDirection): Operation {
+    return condition([
+      [type === MoveType.Slide && direction === MoveDirection.Left, Operation.SlideLeft],
+      [type === MoveType.Slide && direction === MoveDirection.LeftTop, Operation.SlideLeftTop],
+      [type === MoveType.Slide && direction === MoveDirection.LeftBottom, Operation.SlideLeftBottom],
+      [type === MoveType.Slide && direction === MoveDirection.Down, Operation.SlideDown],
+      [type === MoveType.Slide && direction === MoveDirection.RightBottom, Operation.SlideRightBottom],
+      [type === MoveType.Slide && direction === MoveDirection.RightTop, Operation.SlideRightTop],
+      [type === MoveType.Slide && direction === MoveDirection.Right, Operation.SlideRight],
+      [type === MoveType.Move  && direction === MoveDirection.Left, Operation.MoveLeft],
+      [type === MoveType.Move  && direction === MoveDirection.Right, Operation.MoveRight],
+      [type === MoveType.Move  && direction === MoveDirection.Up, Operation.MoveUp],
+      [true, Operation.Stand]
+    ]);
   }
 
 };
