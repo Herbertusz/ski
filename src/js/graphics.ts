@@ -1,9 +1,7 @@
 import { Coord, Rect } from './geometry';
 
 export enum Layers {
-  Under = 'under',
-  Main = 'main',
-  Over = 'over'
+  Main = 'main'
 }
 
 export enum ImageId {
@@ -15,15 +13,11 @@ export enum ImageId {
 }
 
 export interface CanvasLayers {
-  [Layers.Under]: HTMLCanvasElement;
   [Layers.Main]: HTMLCanvasElement;
-  [Layers.Over]: HTMLCanvasElement;
 }
 
 export interface CanvasContexts {
-  [Layers.Under]: CanvasRenderingContext2D;
   [Layers.Main]: CanvasRenderingContext2D;
-  [Layers.Over]: CanvasRenderingContext2D;
 }
 
 /**
@@ -35,15 +29,13 @@ export const Graphics = {
   ctx: { } as CanvasContexts,   // rajzoló kontextus
   currentImage: null,           // aktuális kép
   images: {
-    // under
-    character: { layer: Layers.Under, file: document.createElement('img') },
-    // main
-    tree: { layer: Layers.Main, file: document.createElement('img') },
-    column: { layer: Layers.Main, file: document.createElement('img') },
-    stone: { layer: Layers.Main, file: document.createElement('img') },
-    // over
-    characterJump: { layer: Layers.Over, file: document.createElement('img') }
+    tree: { file: document.createElement('img') },
+    column: { file: document.createElement('img') },
+    stone: { file: document.createElement('img') },
+    character: { file: document.createElement('img') },
+    characterJump: { file: document.createElement('img') }
   },
+  drawingQueue: [] as HTMLImageElement[],
 
   init: function(canvas: CanvasLayers, ctx: CanvasContexts) {
     this.canvas = canvas;
@@ -60,31 +52,43 @@ export const Graphics = {
   },
 
   /**
+   * Kép betöltése
+   * @param {string} fileName - ?
+   * @return {Promise} ?
+   */
+  loadImage: function(fileName: string): Promise<HTMLImageElement> {
+    const img = document.createElement('img');
+    const promise: Promise<HTMLImageElement> = new Promise((resolve, reject) => {
+      img.onload = (_event) => {
+        resolve(img);
+      };
+      img.onerror = (event) => {
+        reject(event);
+      };
+    });
+    img.src = fileName;
+    return promise;
+  },
+
+  /**
    * Kép kirajzolása
    */
   drawImage: function(ctx: CanvasRenderingContext2D, image: CanvasImageSource, dimensions: Rect) {
-    ctx.translate(dimensions.x, dimensions.y);
-    ctx.save();
-    ctx.drawImage(image, -Math.round(dimensions.w / 2), -Math.round(dimensions.h / 2));
-    ctx.restore();
+    ctx.drawImage(image, dimensions.x, dimensions.y, dimensions.w, dimensions.h);
   },
 
   /**
    * Terület törlése
    */
   deleteImage: function(ctx: CanvasRenderingContext2D, dimensions: Rect) {
-    const w = Math.round(Math.SQRT2 * dimensions.w);
-    const h = Math.round(Math.SQRT2 * dimensions.h);
-    ctx.clearRect(dimensions.x - Math.round(w / 2), dimensions.y - Math.round(h / 2), w, h);
+    ctx.clearRect(dimensions.x, dimensions.y, dimensions.w, dimensions.h);
   },
 
   /**
-   * Kép transzformálása (eltolás + elforgatás)
-   * @param pos <object> új pozíció
-   * @param angle <float> új szögelfordulás
+   * Kép transzformálása (eltolás)
    */
   moveImage: function(imageID: ImageId, position: Coord): boolean {
-    const layer = this.images[imageID].layer;
+    const layer = Layers.Main;
     this.deleteImage(this.ctx[layer], { x: 0, y: 0, w: 500, h: 300 });
     this.drawImage(this.ctx[layer], this.images[imageID].file, { ...position, w: 50, h: 50 });
     // this.deleteImage({ x: Current.pos.x, y: Current.pos.y });

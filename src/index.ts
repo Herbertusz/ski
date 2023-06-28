@@ -5,14 +5,10 @@ import { CanvasContexts, CanvasLayers, Graphics, Layers } from './js/graphics';
 window.onload = function() {
 
   const canvas = {
-    under: document.getElementById(Layers.Under),
-    main: document.getElementById(Layers.Main),
-    over: document.getElementById(Layers.Over)
+    main: document.getElementById(Layers.Main)
   } as CanvasLayers;
   const ctx = {
-    under: canvas[Layers.Under].getContext('2d'),
-    main: canvas[Layers.Main].getContext('2d'),
-    over: canvas[Layers.Over].getContext('2d')
+    main: canvas[Layers.Main].getContext('2d')
   } as CanvasContexts;
 
   window.addEventListener('resize', resizeCanvas, false);
@@ -29,8 +25,8 @@ window.onload = function() {
   resizeCanvas();
 
   animate(200, (current) => {
-    ctx[Layers.Under].clearRect(0, 0, canvas[Layers.Under].width, canvas[Layers.Under].height);
-    ctx[Layers.Under].fillRect(current, 20, 100, 100);
+    ctx[Layers.Main].clearRect(0, 0, canvas[Layers.Main].width, canvas[Layers.Main].height);
+    ctx[Layers.Main].fillRect(current, 20, 100, 100);
     return current < 500;
   });
 
